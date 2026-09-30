@@ -34,16 +34,22 @@ async def receive_webhook(
 
     value = data["entry"][0]["changes"][0]["value"]
 
-    message = value["messages"][0]
+    # FIX: los eventos de estado (sent/delivered/read) no traen "messages"; se ignoran en vez de dar KeyError/500
+    messages = value.get("messages")
+    if not messages:
+        return { "status" : "ignored" }
+
+    message = messages[0]
 
     from_number = message["from"]
 
     response = await process_message(message)
 
-    # await send_whatsapp_message(
-    #     from_number,
-    #     response
-    # )
+    await send_whatsapp_message(
+        from_number,
+        response["type"],
+        response["content"]
+    )
     
     return { "status" : "ok" }
 

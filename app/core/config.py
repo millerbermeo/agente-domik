@@ -7,6 +7,8 @@ class Settings(BaseSettings):
     whatsapp_access_token: str
     whatsapp_phone_number_id: str
     groq_key: str
+    # FIX: dominio público (ngrok) sacado a settings; se puede sobrescribir en .env
+    public_base_url: str
 
 
     class Config:

@@ -41,3 +41,6 @@ dist/
 # Archivos temporales
 *.tmp
 *.temp
+
+
+app/audios

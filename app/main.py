@@ -1,7 +1,12 @@
+import os
 from fastapi import FastAPI
-# from app.api.routes.chat import router as chat_router
+from fastapi.staticfiles import StaticFiles
 from app.api.routes.whatsapp import router as whatsapp_router
 
 app = FastAPI()
+
+# FIX: servir los mp3 generados para que WhatsApp pueda descargarlos por URL pública
+os.makedirs("app/audios/salida", exist_ok=True)
+app.mount("/audios", StaticFiles(directory="app/audios/salida"), name="audios")
 
 app.include_router(whatsapp_router, prefix="/api")

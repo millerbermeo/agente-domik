@@ -1,8 +1,11 @@
 import os
 import uuid
+import asyncio
 import httpx
 import edge_tts
+import imageio_ffmpeg
 from app.core.config import settings
+from datetime import datetime
 
 GROQ_KEY = settings.groq_key
 URL_STT = "https://api.groq.com/openai/v1/audio/transcriptions"
@@ -43,6 +46,42 @@ async def razonar(pregunta: str) -> str:
 
 
 async def texto_a_audio(texto: str, salida: str | None = None) -> str:
-    salida = salida or f"salida_{uuid.uuid4().hex}.mp3"
-    await edge_tts.Communicate(texto, "es-CO-SalomeNeural").save(salida)
-    return salida
+
+    carpeta_salida = "app/audios/salida"
+    os.makedirs(carpeta_salida, exist_ok=True)
+
+    if salida is None:
+        fecha = datetime.now().strftime("%Y%m%d_%H%M%S")
+        salida = os.path.join(
+            carpeta_salida,
+            f"audio_{fecha}_{uuid.uuid4().hex[:8]}.mp3"
+        )
+
+    await edge_tts.Communicate(
+        texto,
+        "es-CO-SalomeNeural"
+    ).save(salida)
+
+    # FIX: convertir mp3 -> ogg/opus para que WhatsApp lo muestre como NOTA DE VOZ
+    return await mp3_a_ogg_opus(salida)
+
+
+async def mp3_a_ogg_opus(ruta_mp3: str) -> str:
+    ruta_ogg = os.path.splitext(ruta_mp3)[0] + ".ogg"
+
+    proceso = await asyncio.create_subprocess_exec(
+        imageio_ffmpeg.get_ffmpeg_exe(),
+        "-y", "-i", ruta_mp3,
+        "-vn", "-ac", "1", "-ar", "48000",  # mono, requisito de WhatsApp para notas de voz
+        "-c:a", "libopus", "-b:a", "32k",
+        ruta_ogg,
+        stdout=asyncio.subprocess.DEVNULL,
+        stderr=asyncio.subprocess.PIPE,
+    )
+    _, err = await proceso.communicate()
+
+    if proceso.returncode != 0:
+        raise RuntimeError(f"ffmpeg falló: {err.decode(errors='ignore')[-300:]}")
+
+    os.remove(ruta_mp3)
+    return ruta_ogg
