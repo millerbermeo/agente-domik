@@ -1,4 +1,4 @@
-from app.schemas.user import UserCreate
+from app.schemas.user import UserCreate, UserId
 from app.models.user import User
 from app.conexion.database import DBSession
 from fastapi import HTTPException, status
@@ -34,6 +34,60 @@ class UserService():
 
 
         return new_user
-        
 
-    
+
+    def get_users(
+            self,
+            skip: int = 0,
+            limit: int = 20,
+            status: str | None = None,
+            name: str | None = None,
+    ):
+
+        query = self.db.query(User)
+
+        if status:
+            query = query.filter(User.status == status)
+
+        if name:
+            query = query.filter(User.status.ilike(f"%{name}%"))
+
+        total = query.count()
+
+        users = {
+            query
+            .offset(skip)
+            .limit(limit)
+            .all()
+        }
+
+        return {
+            "items": users,
+            "total": total,
+            "skip": skip,
+            "limit": limit
+        }
+
+
+    def switch_status(self, id: UserId) -> User:
+
+        user = self.db.query(User).filter(
+            User.id == id
+        ).first()
+
+        if not user:
+            raise HTTPException(
+                status_code=404,
+                detail="Usuario no existe"
+            )
+
+        if user.status == "activo":
+            user.status = "inactivo"
+        else:
+            user.status = "activo"
+
+
+        self.db.commit()
+        self.db.refresh(user)
+
+        return user

@@ -13,3 +13,15 @@ class UserRead(BaseModel):
     id: str
     name: str
     email: str
+    status: str
+
+
+class UserListResponse(BaseModel):
+    items: list[UserRead]
+    total: int
+    skip: int
+    limit: int
+
+
+class UserId(BaseModel):
+    id: int
