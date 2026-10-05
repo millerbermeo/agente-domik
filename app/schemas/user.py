@@ -25,3 +25,10 @@ class UserListResponse(BaseModel):
 
 class UserId(BaseModel):
     id: int
+
+
+class UserUpdate(BaseModel):
+    name: str | None = Field(default=None, min_length=3, max_length=100)
+    email: EmailStr | None = None
+    password: str | None = Field(default=None, min_length=8, max_length=250)
+    status: str | None = None

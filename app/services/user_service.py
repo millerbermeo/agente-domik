@@ -1,4 +1,4 @@
-from app.schemas.user import UserCreate, UserId
+from app.schemas.user import UserCreate, UserId, UserUpdate
 from app.models.user import User
 from app.conexion.database import DBSession
 from fastapi import HTTPException, status
@@ -91,3 +91,46 @@ class UserService():
         self.db.refresh(user)
 
         return user
+
+
+    def update_user(self, id: int, data: UserUpdate) -> User:
+
+        usuario = self.db.query(User).filter(
+            User.id == id
+        ).first()
+
+        if not usuario:
+            raise HTTPException(
+                    status_code=404,
+                    detail="El usuario no existe"
+                )
+
+        if data.name:
+            usuario.name = data.name
+
+        if data.email:
+                    
+            email_unique = self.db.query(User).filter(
+                User.email ==  data.email,
+                User.id != id
+            ).first()
+
+            if email_unique:
+                raise HTTPException(
+                    status_code=409,
+                    detail="El email ya se encuentra registrado"
+                )
+            usuario.email = data.email
+
+        if data.password:
+            usuario.password = hash_pass(data.password)
+
+        if data.status:
+            usuario.status = data.status
+
+        self.db.commit()
+        self.db.refresh(usuario)
+
+        return usuario
+
+        
