@@ -12,8 +12,8 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 60
 def hash_pass(password: str):
     return  password_hash.hash(password)
 
-def verify_password(password: str, hashed_passsord: str)-> bool:
-    return password_hash.verify(password, hashed_passsord)
+def verify_password(password: str, hashed_password: str)-> bool:
+    return password_hash.verify(password, hashed_password)
 
 
 def create_access_token(payload: dict):

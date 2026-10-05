@@ -4,7 +4,7 @@ from app.conexion.database import DBSession
 from fastapi import HTTPException, status
 from app.core.security import hash_pass
 
-class UserService():
+class UserService:
 
     def __init__(self, db: DBSession):
         self.db = db
@@ -133,4 +133,12 @@ class UserService():
 
         return usuario
 
+
+    def get_user_by_email(self, email: str):
+
+        user = self.db.query(User).filter(
+            User.email == email
+        ).first()
+
+        return user
         
