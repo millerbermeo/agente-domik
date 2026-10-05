@@ -1,4 +1,4 @@
-from app.schemas.user import UserCreate, UserId, UserUpdate
+from app.schemas.user import UserCreate, UserUpdate
 from app.models.user import User
 from app.conexion.database import DBSession
 from fastapi import HTTPException, status
@@ -40,26 +40,26 @@ class UserService():
             self,
             skip: int = 0,
             limit: int = 20,
-            status: str | None = None,
+            estado: str | None = None,
             name: str | None = None,
     ):
 
         query = self.db.query(User)
 
-        if status:
-            query = query.filter(User.status == status)
+        if estado:
+            query = query.filter(User.status == estado)
 
         if name:
-            query = query.filter(User.status.ilike(f"%{name}%"))
+            query = query.filter(User.name.ilike(f"%{name}%"))
 
         total = query.count()
 
-        users = {
+        users = (
             query
             .offset(skip)
             .limit(limit)
             .all()
-        }
+        )
 
         return {
             "items": users,
@@ -69,7 +69,7 @@ class UserService():
         }
 
 
-    def switch_status(self, id: UserId) -> User:
+    def switch_status(self, id: int) -> User:
 
         user = self.db.query(User).filter(
             User.id == id

@@ -4,12 +4,12 @@ from typing import Annotated
 from app.schemas.user import UserCreate, UserRead, UserListResponse
 from app.services.user_service import UserService, UserUpdate
 
-router = APIRouter()
+router = APIRouter(prefix="/users", tags=["users"])
 
 Service = Annotated[UserService, Depends()]
 
 @router.post(
-    "/users",
+    "/",
     response_model=UserRead,
     status_code=status.HTTP_201_CREATED
 )
@@ -18,7 +18,7 @@ def register_user(user: UserCreate, service: Service):
 
 
 @router.get(
-    "/users",
+    "/",
     response_model=UserListResponse,
     status_code=status.HTTP_200_OK
 )
@@ -38,7 +38,7 @@ def get_all_users(
 
 
 @router.patch(
-    "/users/{id}/change-status",
+    "/{id}/change-status",
     response_model=UserRead,
     status_code=status.HTTP_200_OK
 )
@@ -50,7 +50,7 @@ def change_user_status(
 
 
 @router.put(
-    "users/{id}/update",
+    "/{id}/update",
     response_model=UserRead,
     status_code=status.HTTP_200_OK
 )

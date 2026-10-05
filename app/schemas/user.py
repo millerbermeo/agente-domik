@@ -10,7 +10,7 @@ class UserCreate(BaseModel):
 class UserRead(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
-    id: str
+    id: int
     name: str
     email: str
     status: str
@@ -21,10 +21,6 @@ class UserListResponse(BaseModel):
     total: int
     skip: int
     limit: int
-
-
-class UserId(BaseModel):
-    id: int
 
 
 class UserUpdate(BaseModel):

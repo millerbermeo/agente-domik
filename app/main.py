@@ -3,6 +3,10 @@ from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from app.api.routes.whatsapp import router as whatsapp_router
 from app.api.routes.user import router as user_router
+from app.conexion.database import Base, engine
+
+
+Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
 
