@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, status
 from typing import Annotated
 
 from app.schemas.user import UserCreate, UserRead, UserListResponse
-from app.services.user_service import UserService, UserId
+from app.services.user_service import UserService, UserUpdate
 
 router = APIRouter()
 
@@ -47,3 +47,16 @@ def change_user_status(
     service: Service
 ):
     return service.switch_status(id)
+
+
+@router.put(
+    "users/{id}/update",
+    response_model=UserRead,
+    status_code=status.HTTP_200_OK
+)
+def update_user(
+    id: int,
+    data: UserUpdate,
+    service: Service
+):
+    return service.update_user(id, data)
