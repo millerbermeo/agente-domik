@@ -10,6 +10,10 @@ class Settings(BaseSettings):
 
     public_base_url: str
 
+    google_client_id:str
+    google_client_secret: str
+    google_redirect_uri: str
+
 
     class Config:
         env_file = ".env"
