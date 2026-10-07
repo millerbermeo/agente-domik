@@ -1,25 +1,37 @@
-from sqlalchemy import String
+from typing import TYPE_CHECKING
+
+from sqlalchemy import Enum as SAEnum, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from app.conexion.database import Base
+from app.models.base import BaseModel
+from app.models.enums import ChannelType, ConversationStatus
 
-from app.models.message import Message
+if TYPE_CHECKING:
+    from app.models.message import Message
 
-class Conversation(Base):
+
+class Conversation(BaseModel):
 
     __tablename__ = "conversations"
 
-
-    id: Mapped["int"] = mapped_column(
-        primary_key=True,
-        autoincrement=True
-    )
-
-    status: Mapped["str"] = mapped_column(
-        String(50),
+    channel: Mapped[ChannelType] = mapped_column(
+        SAEnum(ChannelType, native_enum=False),
         nullable=False
     )
 
+    external_user_id: Mapped[str] = mapped_column(
+        String(100),
+        nullable=False,
+        index=True
+    )
+
+    status: Mapped[ConversationStatus] = mapped_column(
+        SAEnum(ConversationStatus, native_enum=False),
+        nullable=False,
+        default=ConversationStatus.OPEN
+    )
+
     messages: Mapped[list["Message"]] = relationship(
+        "Message",
         back_populates="conversation"
     )
